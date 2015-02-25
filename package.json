@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "name": "grunt-commons",
+  "version": "0.1.0",
+  "main": "src/grunt-commons.js",
+  "description": "Internal utility to keep gruntfiles short.",
+  "keywords": ["grunt"],
+  "license": "BSD-3-Clause",
+  "author": "Ben Schulz (https://github.com/benschulz)",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/benschulz/grunt-commons.git"
+  },
+  "homepage": "http://github.com/benschulz/grunt-commons",
+  "bugs": "http://github.com/benschulz/grunt-commons/issues",
+  "dependencies": {
+    "amdclean": "^2.3.0",
+    "bower": "^1.3.12",
+    "chalk": "^1.0.0",
+    "glob": "^4.4.0",
+    "grunt": "^0.4.5",
+    "indent-string": "^1.2.1",
+    "jshint-stylish": "^1.0.1",
+    "mkdirp": "^0.5.0",
+    "npm": "^2.7.0",
+    "pacta": "^0.5.1",
+    "wrench": "^1.5.8"
+  }
+}

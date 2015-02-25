@@ -1,0 +1,1 @@
+An internal project to keep gruntfiles of other projects short and readable. =)
