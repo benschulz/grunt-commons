@@ -123,14 +123,20 @@ function installMissingDependencies(dependencies) {
     return listInstalledComponents()
         .chain(function (installedComponents) {
             var missing = dependencies.all.filter(function (d) { return installedComponents.indexOf(d) < 0; });
+            logger.writeln('The following dependencies are missing: ' + missing.map(util.tick).join(', '));
 
-            if (missing.length === 0) {
-                return Promise.of([]);
-            } else {
-                logger.writeln('The following dependencies are missing: ' + missing.map(util.tick).join(', '));
+            return tryLinkingComponents(missing)
+                .chain(function (linkedComponents) {
+                    var notLinkable = missing.filter(function (m) { return linkedComponents.indexOf(m) < 0; });
 
-                return installComponents(missing, dependencies);
-            }
+                    if (notLinkable.length === 0) {
+                        return Promise.of(missing);
+                    } else {
+                        logger.writeln('The following dependencies are still missing: ' + notLinkable.map(util.tick).join(', '));
+
+                        return Promise.of(linkedComponents).conjoin(installComponents(notLinkable, dependencies));
+                    }
+                });
         });
 }
 
@@ -146,6 +152,35 @@ function listInstalledComponents() {
                     var installed = Object.keys(results);
                     logger.ok('Determined installed components: ' + installed.map(util.tick).join(', '));
                     return installed;
+                }));
+            });
+
+        return promise.chain(util.identity);
+    });
+}
+
+function tryLinkingComponents(components) {
+    // TODO the fact that `bower link <x>` installs `<x>`s dependencies overwriting previously linked components is.. problematic
+    return Promise.of(components)
+        .reduce(function (a, b) {
+            return a.chain(function (linkedAndInstalled) {
+                return Promise.of(linkedAndInstalled).conjoin(tryLinkingComponent(b));
+            });
+        }, Promise.of([]))
+        .chain(util.identity);
+}
+
+function tryLinkingComponent(component) {
+    return Promise.of(true).chain(function () {
+        var promise = new Promise();
+
+        logger.writeln('Trying to link ' + util.tick(component) + '.');
+        bower.commands.link(component)
+            .on('error', function () { promise.resolve(Promise.of([])); })
+            .on('end', function (results) {
+                promise.resolve(Promise.of(true).map(function () {
+                    logger.ok('Component was successfully linked.');
+                    return [component].concat(results.installed);
                 }));
             });
 
