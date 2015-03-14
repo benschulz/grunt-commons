@@ -70,7 +70,7 @@ function loadComponentMetadata(componentName) {
         fs.readFile(path.join('bower_components', componentName, 'bower.json'), 'utf8', function (error, data) {
             promise.resolve(Promise.of(true).chain(function () {
                 if (error)
-                    return util.rejected(installError);
+                    return util.rejected(error);
                 else {
                     return Promise.of([util.singletonObject(componentName, JSON.parse(data))]);
                 }
