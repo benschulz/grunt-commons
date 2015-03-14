@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "grunt-commons",
-  "version": "0.2.0",
+  "version": "0.3.0-SNAPSHOT",
   "main": "src/grunt-commons.js",
   "description": "Internal utility to keep gruntfiles short.",
   "keywords": [
