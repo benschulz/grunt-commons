@@ -1,9 +1,12 @@
 'use strict';
 
+var parentRequire = require('parent-require');
+
 var dependencyVersions = require('./dependency-versions.json'),
-    grunt = require('grunt'),
+    grunt = parentRequire('grunt'),
     logger = require('./logger'),
     npm = require('npm'),
+    path = require('path'),
     Promise = require('pacta'),
     util = require('./util');
 

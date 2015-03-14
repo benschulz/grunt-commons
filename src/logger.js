@@ -1,6 +1,8 @@
 'use strict';
 
-var grunt = require('grunt');
+var parentRequire = require('parent-require');
+
+var grunt = parentRequire('grunt');
 
 module.exports = grunt.option('verbose-grunt-commons')
     ? grunt.log

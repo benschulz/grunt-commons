@@ -1,10 +1,12 @@
 'use strict';
 
+var parentRequire = require('parent-require');
+
 var bower = require('bower'),
     chalk = require('chalk'),
     fs = require('fs'),
     glob = require('glob'),
-    grunt = require('grunt'),
+    grunt = parentRequire('grunt'),
     logger = require('./logger'),
     path = require('path'),
     Promise = require('pacta'),
@@ -37,7 +39,7 @@ function recursivelyDetermineAllDependencies(initialDependencies) {
                     return installedDependencies.length
                         ? recursivelyDetermineAllDependencies(dependencies)
                         : Promise.of(dependencies);
-                })
+                });
         });
 }
 
@@ -58,7 +60,7 @@ function loadAllComponentsMetadata(dependencies) {
                 external: dependencies.external,
                 internal: dependencies.internal,
                 metadata: metadata
-            }
+            };
         });
 }
 
@@ -87,7 +89,7 @@ function collectAllDependencies(dependencies) {
 
         return util.dedupe(Object.keys(dependencies.metadata)
             .map(function (k) { return Object.keys(dependencies.metadata[k][kind] || {}); })
-            .reduce(function (a, b) { return a.concat(b)}))
+            .reduce(function (a, b) { return a.concat(b); }));
     }
 
     logger.subhead('Collecting all currently visible dependencies.');

@@ -1,12 +1,14 @@
 'use strict';
 
+var parentRequire = require('parent-require');
+
 var fs = require('fs'),
     glob = require('glob'),
-    grunt = require('grunt'),
+    grunt = parentRequire('grunt'),
     wrench = require('wrench');
 
 grunt.registerTask('es6arrowfunction', function () {
-    var es6arrowfunction = require('es6-arrow-function');
+    var es6arrowfunction = parentRequire('es6-arrow-function');
 
     if (fs.existsSync('build/es5src'))
         wrench.rmdirSyncRecursive('build/es5src');
@@ -16,7 +18,7 @@ grunt.registerTask('es6arrowfunction', function () {
         var es6SourceCode = fs.readFileSync(jsFile, 'utf8');
         var es5SourceCode = es6arrowfunction.compile(es6SourceCode);
         fs.writeFileSync(jsFile, es5SourceCode);
-    })
+    });
 });
 
 module.exports = {
