@@ -3,6 +3,7 @@
 var chalk = require('chalk'),
     dependencyDeterminator = require('./dependency-determinator'),
     fs = require('fs'),
+    glob = require('glob'),
     logger = require('./logger'),
     mkdirp = require('mkdirp'),
     ModuleDescriptor = require('./module-descriptor'),
@@ -30,9 +31,10 @@ module.exports = function (grunt, mdl) {
     function initGrunt(config, dependencies) {
         var moduleDescriptor = new ModuleDescriptor(mdl, dependencies);
 
+        var gruntConfig = registerCustomTasks(moduleDescriptor);
+
         logger.subhead('Initializing grunt..');
         config = config || {};
-        var gruntConfig = {};
         Object.keys(config).forEach(function (k) {
             gruntConfig[k] = config[k];
         });
@@ -53,11 +55,26 @@ module.exports = function (grunt, mdl) {
         return Promise.of(true);
     }
 
+    function registerCustomTasks(moduleDescriptor) {
+        var gruntConfig = {};
+
+        gruntConfig['concat-externs'] = grunt.registerTask('concat-externs', function () {
+            var allExterns = glob.sync('api/**/*.externs.js').map(function (externsFile) {
+                return fs.readFileSync(externsFile, 'utf8').trim();
+            }).reduce(function (a, b) { return a + '\n\n' + b; }, '');
+
+            if (allExterns)
+                fs.writeFileSync(path.join('dist', moduleDescriptor.name + '.externs.js'), allExterns);
+        });
+
+        return gruntConfig;
+    }
+
     return {
         initialize: function (config) {
             // TODO default task for watch & karma:development (needs grunt-concurrent)
-            registerTask('pre-distribution', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'closurecompiler', 'karma:distribution');
-            registerTask('pre-distribution-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'closurecompiler');
+            registerTask('pre-distribution', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'closurecompiler', 'karma:distribution', 'concat-externs');
+            registerTask('pre-distribution-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'closurecompiler', 'concat-externs');
             registerTask('test-interactively', 'karma:development');
             registerTask('test-sources', 'karma:sources');
             registerTask('test-debug-distribution', 'karma:debugDistribution');
