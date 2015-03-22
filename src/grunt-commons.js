@@ -13,6 +13,9 @@ var chalk = require('chalk'),
     util = require('./util');
 
 module.exports = function (grunt, mdl) {
+    var adapters = fs.readdirSync(path.join(__dirname, 'adapters')).map(function (f) { return path.basename(f, '.js'); });
+    logger.writeln('Adapters: ' + adapters.join(', ') + '.');
+
     var triggers = {
         cssmin: function (config) { return !!(config.less || config.cssmin); },
         karma: function (config) {
@@ -38,9 +41,6 @@ module.exports = function (grunt, mdl) {
         Object.keys(config).forEach(function (k) {
             gruntConfig[k] = config[k];
         });
-
-        var adapters = fs.readdirSync(path.join(__dirname, 'adapters')).map(function (f) { return path.basename(f, '.js'); });
-        logger.writeln('Adapters: ' + adapters.join(', ') + '.');
 
         adapters.forEach(function (a) {
             if (!triggers[a] || triggers[a](config)) {
@@ -80,7 +80,10 @@ module.exports = function (grunt, mdl) {
             registerTask('test-debug-distribution', 'karma:debugDistribution');
             registerTask('test-distribution', 'karma:distribution');
 
-            grunt.initConfig({});
+            grunt.initConfig(Object.keys(config)
+                .filter(function (k) { return adapters.indexOf(k) < 0; })
+                .map(function (k) { return util.singletonObject(k, config[k]); })
+                .reduce(util.mergeObjects, {}));
 
             function registerTask(name) {
                 var targets = Array.prototype.slice.call(arguments, 1);
