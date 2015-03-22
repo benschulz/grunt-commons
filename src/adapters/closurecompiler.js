@@ -39,7 +39,9 @@ module.exports = {
                     'compilation_level': 'ADVANCED_OPTIMIZATIONS',
                     'language_in': 'ECMASCRIPT5',
                     'use_types_for_optimization': true,
-                    'externs': externs
+                    'externs': externs,
+                    'warning_level': 'VERBOSE'
+                    //, 'jscomp_warning': 'reportUnknownTypes'
                 }
             }
         };
