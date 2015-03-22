@@ -77,12 +77,16 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         })),
         preprocessors: {
             'build/es5src/**/*.js': interactive ? [] : ['coverage'],
+            'test/**/*.js': version === 'sources' ? [] : ['babel'],
             'dist/*.js': interactive ? [] : ['coverage']
         },
         reporters: interactive ? ['dots'] : ['html', 'coverage', 'progress'],
         // TODO add phantomjs when it's at v2, add slimerjs at convenience..
         browsers: interactive || version === 'sources' ? ['Firefox'] : ['Chrome', 'Firefox'],
         singleRun: !interactive,
+        babelPreprocessor: {
+            options: {sourceMap: 'inline'}
+        },
         htmlReporter: {
             outputDir: 'dist/reports/test-results/' + version,
             templatePath: 'node_modules/karma-html-reporter/jasmine_template.html'
