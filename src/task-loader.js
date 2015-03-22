@@ -49,7 +49,7 @@ function installMissingNodePackages(packages) {
         .chain(function (installed) {
             var packagesWithVersion = packages
                 .filter(function (name) { return installed.indexOf(name) < 0; })
-                .map(function (name) { return name + '@' + dependencyVersions[name]; });
+                .map(function (name) { return name + '@' + (dependencyVersions[name] || 'latest'); });
 
             if (packagesWithVersion.length) {
                 logger.writeln('Some required packages are missing.');
