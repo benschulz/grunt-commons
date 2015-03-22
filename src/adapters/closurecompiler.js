@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs'),
+    glob = require('glob'),
     logger = require('../logger'),
     path = require('path'),
     util = require('../util');
@@ -17,11 +18,19 @@ module.exports = {
                 availableExterns
                     .filter(function (e) { return moduleDescriptor.dependencies.external.indexOf(e) >= 0; })
                     .map(function (e) { return path.join(__dirname, '../externs', e + '.externs.js'); })
+            ).concat(
+                moduleDescriptor.dependencies.external.map(function (d) {
+                    return glob.sync(path.join('bower_components', d, 'dist/**/*.externs.js'));
+                }).reduce(function (a, b) { return a.concat(b); }, [])
             )
         );
 
+        var apiFiles = moduleDescriptor.dependencies.internal.map(function (d) {
+            return glob.sync(path.join('bower_components', d, 'dist/**/*.externs.js'));
+        }).reduce(function (a, b) { return a.concat(b); }, [])
+
         var files = {};
-        files[moduleDescriptor.distributionFile] = [moduleDescriptor.debugDistributionFile, 'api/**/*.js'];
+        files[moduleDescriptor.distributionFile] = [moduleDescriptor.debugDistributionFile, 'api/**/*.js'].concat(apiFiles);
 
         return {
             minify: {
