@@ -7,17 +7,18 @@ var fs = require('fs'),
 
 module.exports = {
     configure: function (moduleDescriptor) {
-        var availableExterns = fs.readdirSync(path.join(__dirname, '../externs')).map(function(f) { return path.basename(f, '.js'); });
+        var availableExterns = fs.readdirSync(path.join(__dirname, '../externs')).map(function (f) { return path.basename(f, '.externs.js'); });
         logger.writeln('Available externs: ' + availableExterns.join(', ') + '.');
 
-        var externs = util.dedupe(Object.keys(moduleDescriptor.dependencies.metadata)
-            .map(function (k) {
-                var metadata = moduleDescriptor.dependencies.metadata[k];
-                return availableExterns
-                    .filter(function (e) { return metadata.dependencies && !!metadata.dependencies[e]; })
-                    .map(function (e) { return path.join(__dirname, '../externs', e + '.js'); });
-            })
-            .reduce(function (a, b) { return a.concat(b); }, []));
+        var externs = util.dedupe(
+            [
+                path.join(__dirname, '../externs/requirejs.externs.js')
+            ].concat(
+                availableExterns
+                    .filter(function (e) { return moduleDescriptor.dependencies.external.indexOf(e) >= 0; })
+                    .map(function (e) { return path.join(__dirname, '../externs', e + '.externs.js'); })
+            )
+        );
 
         var files = {};
         files[moduleDescriptor.distributionFile] = [moduleDescriptor.debugDistributionFile];
