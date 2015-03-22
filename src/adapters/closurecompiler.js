@@ -21,7 +21,7 @@ module.exports = {
         );
 
         var files = {};
-        files[moduleDescriptor.distributionFile] = [moduleDescriptor.debugDistributionFile];
+        files[moduleDescriptor.distributionFile] = [moduleDescriptor.debugDistributionFile, 'api/**/*.js'];
 
         return {
             minify: {
