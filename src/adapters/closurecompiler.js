@@ -9,7 +9,7 @@ var fs = require('fs'),
 module.exports = {
     configure: function (moduleDescriptor) {
         var availableExterns = fs.readdirSync(path.join(__dirname, '../externs')).map(function (f) { return path.basename(f, '.externs.js'); });
-        logger.writeln('Available externs: ' + availableExterns.join(', ') + '.');
+        logger.writeln('Available library externs: ' + availableExterns.join(', ') + '.');
 
         var externs = util.dedupe(
             [
@@ -24,6 +24,8 @@ module.exports = {
                 }).reduce(function (a, b) { return a.concat(b); }, [])
             )
         );
+        logger.writeln('Using the following externs:');
+        externs.forEach(function (e) { logger.writeln('  - ' + e); });
 
         var apiFiles = moduleDescriptor.dependencies.internal.map(function (d) {
             return glob.sync(path.join('bower_components', d, 'dist/**/*.externs.js'));
