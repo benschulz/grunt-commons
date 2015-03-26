@@ -73,8 +73,8 @@ module.exports = function (grunt, mdl) {
     return {
         initialize: function (config) {
             // TODO default task for watch & karma:development (needs grunt-concurrent)
-            registerTask('pre-distribution', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'closurecompiler', 'karma:distribution', 'concat-externs', 'jsdoc');
-            registerTask('pre-distribution-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'closurecompiler', 'concat-externs', 'jsdoc');
+            registerTask('build', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'closurecompiler', 'karma:distribution', 'concat-externs', 'jsdoc');
+            registerTask('build-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'closurecompiler', 'concat-externs', 'jsdoc');
             registerTask('generate-documentation', 'es6arrowfunction', 'jsdoc');
             registerTask('test-interactively', 'karma:development');
             registerTask('test-sources', 'karma:sources');
