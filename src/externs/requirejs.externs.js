@@ -9,7 +9,7 @@
 function define(name, dependencies, valueOrFactory) {}
 
 /**
- * @param {Array<String>} dependencies
+ * @param {Array<string>} dependencies
  * @param {function(...)=} callback
  * @returns {?}
  */

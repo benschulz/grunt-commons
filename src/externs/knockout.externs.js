@@ -15,13 +15,44 @@ ko.cleanNode = function (node) {};
  * @returns Subscribable<T>
  */
 ko.computed = function (evaluatorFunctionOrOptions, evaluatorFunctionTarget, options) {};
+
+/**
+ * @param node
+ * @returns {?}
+ */
 ko.contextFor = function (node) {};
+/**
+ * @param {function()} callback
+ * @param {Object=} callbackTarget
+ * @param {Array<*>=} callbackArgs
+ */
+ko.ignoreDependencies = function (callback, callbackTarget, callbackArgs) {};
 ko.isObservable = function (value) {};
+/** @constructor */
 ko.nativeTemplateEngine = function () {};
+/**
+ * @param {*=} initialValue
+ */
 ko.observable = function (initialValue) {};
+/**
+ * @param {Array<?>=} initialValue
+ */
 ko.observableArray = function (initialValue) {};
+/**
+ * @template T
+ * @param {function():T|{read:function():T}} evaluatorFunctionOrOptions
+ * @param {*=} evaluatorFunctionTarget
+ * @returns Subscribable<T>
+ */
 ko.pureComputed = function (evaluatorFunctionOrOptions, evaluatorFunctionTarget) {};
 ko.removeNode = function (node) {};
+/**
+ * @param {string} template
+ * @param {Object} dataOrBindingContext
+ * @param {Object=} options
+ * @param {(Node|Array<Node>)=} targetNodeOrNodeArray
+ * @param {string=} renderMode
+ */
 ko.renderTemplate = function (template, dataOrBindingContext, options, targetNodeOrNodeArray, renderMode) {};
 ko.unwrap = function (value) {};
 
