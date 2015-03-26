@@ -21,7 +21,7 @@ module.exports = function (grunt, mdl) {
         karma: function (config) {
             var karmaEnabled = Object.prototype.hasOwnProperty.call(config, 'karma')
                 ? config.karma !== false
-                : fs.existsSync('test/main.js');
+                : fs.existsSync('test/main.test.js');
 
             if (!karmaEnabled)
                 logger.warn(chalk.yellow('Warning: No tests found or karma was disabled.'));

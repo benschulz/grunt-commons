@@ -70,7 +70,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         frameworks: ['mocha', 'requirejs', 'chai'],
         files: additionalFiles.concat([
             'build/karma-requirejs-config/config-' + version + '.js',
-            'test/main.js',
+            'test/main.test.js',
             {pattern: 'src/**/*.js', included: false},
             {pattern: 'build/es5src/**/*.js', included: false},
             {pattern: 'test/**/*.js', included: false},
