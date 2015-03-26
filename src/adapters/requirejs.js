@@ -39,7 +39,6 @@ module.exports = {
                 onModuleBundleComplete: function (data) {
                     fs.writeFileSync(data.path, stipAmds(moduleDescriptor, {
                         filePath: data.path,
-                        shimOverrides: {module: '{id:\'' + moduleDescriptor.name + '\'}'},
                         wrap: {
                             start: [
                                 '/**\n',
@@ -61,7 +60,7 @@ module.exports = {
                                 ');\n',
                                 '} (function(', []
                                     .concat(moduleDescriptor.shims.require ? ['req'] : [])
-                                    .concat(moduleDescriptor.orderedExternalDependencies.map(normalizeModuleName))
+                                    .concat(moduleDescriptor.shimmedExternalDependencies.map(normalizeModuleName))
                                     .join(', '),
                                 ') {\n'].join(''),
                             end: 'return ' + normalizeModuleName(moduleDescriptor.name) + ';\n}));'
