@@ -4,7 +4,7 @@ var logger = require('./logger'),
     path = require('path');
 
 module.exports = function ModuleDescriptor(data, dependencies) {
-    logger.writeln('Creating module descriptor for `' + data.name + '`.');
+    logger.subhead('Creating module descriptor for `' + data.name + '`.');
 
     this.name = data.name;
     this.dependencies = dependencies;
@@ -26,4 +26,6 @@ module.exports = function ModuleDescriptor(data, dependencies) {
     this.shimmedExternalDependencies = dependencies.external.filter(function (d) { return Object.keys(this.shims).indexOf(d) >= 0; }, this);
     this.unshimmedExternalDependencies = dependencies.external.filter(function (d) { return this.shimmedExternalDependencies.indexOf(d) < 0; }, this);
     this.orderedExternalDependencies = this.shimmedExternalDependencies.concat(this.unshimmedExternalDependencies);
+
+    logger.ok('OK');
 };

@@ -10,6 +10,7 @@ var bower = require('bower'),
     logger = require('./logger'),
     path = require('path'),
     Promise = require('pacta'),
+    rimraf = require('rimraf'),
     util = require('./util');
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
 };
 
 function determineAllDependencies() {
-    logger.subhead(chalk.underline('Determining direct as well as transitive dependencies.'));
+    logger.subhead('Determining direct as well as transitive dependencies.');
     logger.writeln('Reading `bower.json` to determine direct dependencies.');
     var metadata = JSON.parse(fs.readFileSync('bower.json', 'utf8'));
 
@@ -26,7 +27,7 @@ function determineAllDependencies() {
         external: [],
         internal: [],
         metadata: util.singletonObject(metadata.name, metadata)
-    }).map(addInternalMains);
+    }).map(addInternalMains).chain(tryLinkingNonLinkedComponents);
 }
 
 function recursivelyDetermineAllDependencies(initialDependencies) {
@@ -159,35 +160,6 @@ function listInstalledComponents() {
     });
 }
 
-function tryLinkingComponents(components) {
-    // TODO the fact that `bower link <x>` installs `<x>`s dependencies overwriting previously linked components is.. problematic
-    return Promise.of(components)
-        .reduce(function (a, b) {
-            return a.chain(function (linkedAndInstalled) {
-                return Promise.of(linkedAndInstalled).conjoin(tryLinkingComponent(b));
-            });
-        }, Promise.of([]))
-        .chain(util.identity);
-}
-
-function tryLinkingComponent(component) {
-    return Promise.of(true).chain(function () {
-        var promise = new Promise();
-
-        logger.writeln('Trying to link ' + util.tick(component) + '.');
-        bower.commands.link(component)
-            .on('error', function () { promise.resolve(Promise.of([])); })
-            .on('end', function (results) {
-                promise.resolve(Promise.of(true).map(function () {
-                    logger.ok('Component was successfully linked.');
-                    return [component].concat(results.installed);
-                }));
-            });
-
-        return promise.chain(util.identity);
-    });
-}
-
 function installComponents(components, dependencies) {
     return Promise.of(true).chain(function () {
         var promise = new Promise();
@@ -257,4 +229,77 @@ function determineInternalMain(internalDependency) {
     var internalMain = path.relative(location, mainPaths[0]);
     logger.ok('Internal dependency of ' + util.tick(internalDependency) + ' is ' + util.tick(internalMain) + '.');
     return internalMain;
+}
+
+function tryLinkingNonLinkedComponents(dependencies) {
+    logger.subhead('Trying to link components which aren\'t linked yet.');
+
+    var nonLinked = dependencies.all.filter(function (d) {
+        return !fs.lstatSync(path.join('bower_components', d)).isSymbolicLink();
+    });
+
+    return tryLinkingComponents(nonLinked)
+        .map(function () {return dependencies;});
+}
+
+function tryLinkingComponents(components) {
+    return Promise.of(components)
+        .reduce(function (a, b) {
+            return a.chain(function (linkedAndInstalled) {
+                return Promise.of(linkedAndInstalled).conjoin(tryLinkingComponent(b));
+            });
+        }, Promise.of([]))
+        .chain(util.identity);
+}
+
+function tryLinkingComponent(component) {
+    return Promise.of(true).chain(function () {
+        var promise = new Promise();
+
+        var componentPath = path.join('bower_components', component);
+        var backupPath = path.join('bower_components', component + '.bak');
+
+        renameIfExists(componentPath, backupPath);
+
+        logger.writeln('Trying to link ' + util.tick(component) + '.');
+        bower.commands.link(component)
+            .on('error', function () {
+                promise.resolve(Promise.of(true).map(function () {
+                    logger.error('Component could not be linked.');
+                    renameIfExists(backupPath, componentPath);
+                    return [];
+                }));
+            })
+            .on('end', function (results) {
+                promise.resolve(Promise.of(true).map(function () {
+                    logger.ok('Component was successfully linked.');
+                    deleteIfExists(backupPath);
+                    return [component].concat(results.installed);
+                }));
+            });
+
+        return promise.chain(util.identity);
+    });
+}
+
+function renameIfExists(oldPath, newPath) {
+    ifExists(oldPath, function () {
+        fs.renameSync(oldPath, newPath);
+    });
+}
+
+function deleteIfExists(path) {
+    ifExists(path, function () {
+        rimraf.sync(path);
+    });
+}
+
+function ifExists(path, callback) {
+    try {
+        fs.accessSync(path, fs.F_OK);
+    } catch (e) {
+        if (e.code === 'ENOENT')
+            return;
+    }
+    callback();
 }
