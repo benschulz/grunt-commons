@@ -99,7 +99,7 @@ module.exports = {
                             filePath: data.path,
                             wrap: {
                                 start: [
-                                    '/**\n',
+                                    '/*\n',
                                     ' * Copyright (c) 2015, Ben Schulz\n',
                                     ' * License: BSD 3-clause (http://opensource.org/licenses/BSD-3-Clause)\n',
                                     ' */\n',
