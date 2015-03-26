@@ -94,6 +94,24 @@ module.exports = function (grunt, mdl) {
 
                     mkdirp.sync('build');
                     dependencyDeterminator.determineAllDependencies()
+                        .map(function (dependencies) {
+                            if (grunt.option('dev') || grunt.option('development')) {
+                                var packages = dependencies.all.map(function (d) {
+                                    var dpJson = path.join('bower_components', d, 'build/packages.json');
+                                    var dp = fs.existsSync(dpJson) ? JSON.parse(fs.readFileSync(dpJson)) : {};
+
+                                    return util.mapProperties(dp, function (p) {
+                                        return path.join('bower_components', d, p);
+                                    });
+                                }).concat([
+                                    util.singletonObject(mdl.name, path.join('src', mdl.internalMain || mdl.main))
+                                ]).reduce(util.mergeObjects, {});
+
+                                fs.writeFileSync('build/packages.json', JSON.stringify(packages, null, '  '));
+                            }
+
+                            return dependencies;
+                        })
                         .chain(function (dependencies) { return initGrunt(config, dependencies); })
                         .chain(function () { return executeConfigured.apply(undefined, targets); })
                         .map(function () {
