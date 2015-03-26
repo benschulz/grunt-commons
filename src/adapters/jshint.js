@@ -1,6 +1,7 @@
 'use strict';
 
-var jsHintStylish = require('jshint-stylish');
+var jsHintStylish = require('jshint-stylish'),
+    util = require('../util');
 
 module.exports = {
     configure: function () {
@@ -8,46 +9,62 @@ module.exports = {
             gruntfile: {
                 files: {src: ['Gruntfile.js']},
                 options: jsHintOptions({
-                    define: false,
-                    module: false,
-                    require: false,
-                    window: false
+                    globals: {
+                        define: false,
+                        module: false,
+                        require: false,
+                        window: false
+                    }
                 })
             },
             sources: {
-                files: {src: ['build/es5src/**/*.js']},
+                files: {src: ['src/**/*.js']},
                 options: jsHintOptions({
-                    define: false,
-                    module: false,
-                    require: false,
-                    window: false
+                    esnext: true,
+                    globals: {
+                        define: false,
+                        module: false,
+                        require: false,
+                        window: false
+                    }
+                })
+            },
+            api: {
+                files: {src: ['api/**/*.js']},
+                options: jsHintOptions({
+                    globalstrict: false,
+                    undef: false,
+                    expr: true
                 })
             },
             testSources: {
                 files: {src: ['test/**/*.js']},
                 options: jsHintOptions({
-                    after: false,
-                    afterEach: false,
-                    before: false,
-                    beforeEach: false,
-                    expect: false,
-                    define: false,
-                    document: false,
-                    mocha: false,
-                    module: false,
-                    require: false,
-                    requirejs: false,
-                    window: false,
-                    describe: false,
-                    it: false
+                    esnext: true,
+                    globals: {
+                        after: false,
+                        afterEach: false,
+                        before: false,
+                        beforeEach: false,
+                        expect: false,
+                        define: false,
+                        document: false,
+                        mocha: false,
+                        module: false,
+                        require: false,
+                        requirejs: false,
+                        window: false,
+                        describe: false,
+                        it: false
+                    }
                 })
             }
         };
     }
 };
 
-function jsHintOptions(globals) {
-    return {
+function jsHintOptions(adjustments) {
+    return util.mergeObjects({
         reporter: jsHintStylish,
         // enforcing
         camelcase: false,
@@ -66,6 +83,6 @@ function jsHintOptions(globals) {
         sub: true,
         validthis: true,
         // globals
-        globals: globals
-    };
+        globals: {}
+    }, adjustments);
 }
