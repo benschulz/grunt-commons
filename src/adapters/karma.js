@@ -12,10 +12,10 @@ var fs = require('fs'),
 module.exports = {
     configure: function (moduleDescriptor, config) {
         return {
-            sources: {options: karmaOptions('sources', '../build/es5src', moduleDescriptor.main, false, moduleDescriptor, config)},
+            sources: {options: karmaOptions('sources', '../src', moduleDescriptor.main, false, moduleDescriptor, config)},
             distribution: {options: karmaOptions('distribution', '../dist', moduleDescriptor.basename, false, moduleDescriptor, config)},
             debugDistribution: {options: karmaOptions('debug-distribution', '../dist', moduleDescriptor.debugBasename, false, moduleDescriptor, config)},
-            development: {options: karmaOptions('sources', '../build/es5src', moduleDescriptor.main, true, moduleDescriptor, config)}
+            development: {options: karmaOptions('sources', '../src', moduleDescriptor.main, true, moduleDescriptor, config)}
         };
     }
 };
@@ -71,6 +71,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         files: additionalFiles.concat([
             'build/karma-requirejs-config/config-' + version + '.js',
             'test/main.js',
+            {pattern: 'src/**/*.js', included: false},
             {pattern: 'build/es5src/**/*.js', included: false},
             {pattern: 'test/**/*.js', included: false},
             {pattern: 'dist/*.js', included: false}
