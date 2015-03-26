@@ -1,6 +1,9 @@
 'use strict';
 
+var parentRequire = require('parent-require');
+
 var fs = require('fs'),
+    grunt = parentRequire('grunt'),
     indentString = require('indent-string'),
     mkdirp = require('mkdirp'),
     path = require('path'),
@@ -60,6 +63,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         ''
     ].join('\n'));
 
+    var reportsDirectory = grunt.option('reports-directory') || 'build/reports';
     var additionalFiles = config.additionalFiles || [];
 
     return {
@@ -88,11 +92,11 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
             options: {sourceMap: 'inline'}
         },
         htmlReporter: {
-            outputDir: 'dist/reports/test-results/' + version,
+            outputDir: path.join(reportsDirectory, 'test-results', version),
             templatePath: 'node_modules/karma-html-reporter/jasmine_template.html'
         },
         coverageReporter: {
-            dir: 'dist/reports/coverage/' + version,
+            dir: path.join(reportsDirectory, 'coverage', version),
             type: 'html'
         }
     };
