@@ -33,6 +33,7 @@ function pluginFor(taskId) {
         closurecompiler: ['grunt-closurecompiler'],
         cssmin: ['grunt-contrib-cssmin'],
         es6arrowfunction: ['es6-arrow-function'],
+        jsdoc: ['grunt-jsdoc', 'jaguarjs-jsdoc'],
         jshint: ['grunt-contrib-jshint'],
         karma: ['chai', 'grunt-karma', 'karma', 'karma-babel-preprocessor', 'karma-chai', 'karma-chrome-launcher', 'karma-coverage', 'karma-firefox-launcher', 'karma-html-reporter', 'karma-mocha', 'karma-phantomjs-launcher', 'karma-requirejs'],
         less: ['grunt-contrib-less'],
