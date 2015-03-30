@@ -32,15 +32,14 @@ module.exports = function (grunt, mdl) {
     };
 
     function initGrunt(config, dependencies) {
+        config = config || {};
+
         var moduleDescriptor = new ModuleDescriptor(mdl, dependencies);
 
-        var gruntConfig = registerCustomTasks(moduleDescriptor);
+        registerInternalTasks(moduleDescriptor);
 
         logger.subhead('Initializing grunt..');
-        config = config || {};
-        Object.keys(config).forEach(function (k) {
-            gruntConfig[k] = config[k];
-        });
+        var gruntConfig = util.mapProperties(config, util.identity);
 
         adapters.forEach(function (a) {
             if (!triggers[a] || triggers[a](config)) {
@@ -55,38 +54,24 @@ module.exports = function (grunt, mdl) {
         return Promise.of(true);
     }
 
-    function registerCustomTasks(moduleDescriptor) {
-        var gruntConfig = {};
-
-        gruntConfig['concat-externs'] = grunt.registerTask('concat-externs', function () {
-            var allExterns = glob.sync('api/**/*.externs.js').map(function (externsFile) {
-                return fs.readFileSync(externsFile, 'utf8').trim();
-            }).reduce(function (a, b) { return a + '\n\n' + b; }, '');
-
-            if (allExterns)
-                fs.writeFileSync(path.join('dist', moduleDescriptor.name + '.externs.js'), allExterns);
-        });
-
-        return gruntConfig;
-    }
+    var registeredTasks = [];
 
     return {
         initialize: function (config) {
-            // TODO default task for watch & karma:development (needs grunt-concurrent)
-            registerTask('build', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'closurecompiler', 'karma:distribution', 'concat-externs', 'jsdoc');
-            registerTask('build-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'closurecompiler', 'concat-externs', 'jsdoc');
-            registerTask('generate-documentation', 'es6arrowfunction', 'jsdoc');
-            registerTask('test-interactively', 'karma:development');
-            registerTask('test-sources', 'karma:sources');
-            registerTask('test-debug-distribution', 'karma:debugDistribution');
-            registerTask('test-distribution', 'karma:distribution');
+            registerTaskList('build', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'concat-externs', 'prepare-apis', 'closurecompiler', 'drop-apis', 'karma:distribution', 'jsdoc');
+            registerTaskList('build-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'concat-externs', 'prepare-apis', 'closurecompiler', 'drop-apis', 'jsdoc');
+            registerTaskList('generate-documentation', 'es6arrowfunction', 'jsdoc');
+            registerTaskList('test-interactively', 'karma:development');
+            registerTaskList('test-sources', 'karma:sources');
+            registerTaskList('test-debug-distribution', 'karma:debugDistribution');
+            registerTaskList('test-distribution', 'karma:distribution');
 
             grunt.initConfig(Object.keys(config)
                 .filter(function (k) { return adapters.indexOf(k) < 0; })
                 .map(function (k) { return util.singletonObject(k, config[k]); })
                 .reduce(util.mergeObjects, {}));
 
-            function registerTask(name) {
+            function registerTaskList(name) {
                 var targets = Array.prototype.slice.call(arguments, 1);
 
                 grunt.registerTask(name, function () {
@@ -128,25 +113,105 @@ module.exports = function (grunt, mdl) {
         }
     };
 
+    function registerInternalTasks(moduleDescriptor) {
+        registerTask('concat-externs', function () {
+            var allExterns = glob.sync('api/**/*.externs.js').map(function (externsFile) {
+                return fs.readFileSync(externsFile, 'utf8').trim();
+            });
+
+            function extractNamespaces(externs) {
+                var namespaces = [];
+
+                var regexp = /\/\*\*([^*]|\*[^/])*@namespace\s([^*]|\*[^/])*\*\/\s*(var\s+)?(([a-zA-Z]+\s*\.\s*)*[a-zA-Z]+)\s*=/g;
+                var match;
+                while ((match = regexp.exec(externs))) {
+                    var namespace = match[4].replace(/\s/g, '');
+                    namespaces.push(namespace)
+                }
+
+                return namespaces;
+            }
+
+            function containsDeclarationsInAnyOf(externs, namespaces) {
+                var regexp = /^\s*(([a-zA-Z]+\s*\.\s*)*[a-zA-Z]+)\s*(=|;)/mg;
+                var match;
+                while ((match = regexp.exec(externs))) {
+                    var declaredSymbol = match[1].replace(/\s/g, '');
+                    var namespace = declaredSymbol.substring(0, declaredSymbol.lastIndexOf('.'));
+
+                    if (namespaces.indexOf(namespace) >= 0)
+                        return true;
+                }
+
+                return false;
+            }
+
+            allExterns.sort(function (a, b) {
+                var aNamespaces = extractNamespaces(a);
+                var bNamespaces = extractNamespaces(b);
+                var aMakesDeclarationsInBsNamespaces = containsDeclarationsInAnyOf(a, bNamespaces);
+                var bMakesDeclarationsInAsNamespaces = containsDeclarationsInAnyOf(b, aNamespaces);
+
+                if (aMakesDeclarationsInBsNamespaces && bMakesDeclarationsInAsNamespaces)
+                    throw new Error('Can\'t order externs.');
+
+                return aMakesDeclarationsInBsNamespaces ? 1 : bMakesDeclarationsInAsNamespaces ? -1 : 0;
+            });
+
+            if (allExterns)
+                fs.writeFileSync(path.join('dist', moduleDescriptor.name + '.externs.js'),
+                    allExterns.reduce(function (a, b) { return a + '\n\n' + b + '\n'; }, ''));
+        });
+
+        // TODO this is an ugly, ugly hack and i don't like it :(
+        registerTask('prepare-apis', function () {
+            // *sadface*
+            var apiFiles = moduleDescriptor.dependencies.internal
+                .map(function (d) { return glob.sync(path.join('bower_components', d, 'dist/**/*.externs.js')); })
+                .reduce(function (a, b) { return a.concat(b); }, [])
+                .concat(glob.sync('dist/**/*.externs.js'));
+
+            fs.writeFileSync('build/apis.js', [
+                '/** @preserve START OF APIs */',
+                apiFiles.map(function (f) { return fs.readFileSync(f, 'utf8').trim(); })
+                    .reduce(function (a, b) { return a + '\n' + b + '\n'; }, '')
+            ].join(''));
+        });
+
+        registerTask('drop-apis', function () {
+            // *sadface*
+            var code = fs.readFileSync(moduleDescriptor.distributionFile, 'utf8');
+            code = code.replace(/\/\*\s*START OF APIs\s*\*\/[\s\S]*$/, '');
+            fs.writeFileSync(moduleDescriptor.distributionFile, code);
+        });
+    }
+
+    function registerTask(name, task) {
+        registeredTasks.push(name);
+        grunt.registerTask(name, task);
+    }
+
     function executeConfigured() {
         var targets = Array.prototype.slice.call(arguments);
 
         logger.writeln('Preparing to execute targets ' + targets.map(util.tick).join(', '));
 
-        function e(t) { return t.indexOf(':') >= 0 ? t.substring(0, t.indexOf(':')) : t; }
+        function extractTaskName(t) { return t.indexOf(':') >= 0 ? t.substring(0, t.indexOf(':')) : t; }
+
+        function isConfigured(t) { return registeredTasks.indexOf(extractTaskName(t)) >= 0 || !!grunt.config.getRaw(extractTaskName(t)); }
 
         var unconfigured = targets
-            .filter(function (t) { return !grunt.config.getRaw(e(t)); })
+            .filter(function (t) { return !isConfigured(t); })
             .map(function (t) { return '`' + t + '`'; });
         if (unconfigured.length)
             logger.writeln('Skipping tasks ' + unconfigured.join(', ') + ' because they are not configured.');
 
-        var configured = targets.filter(function (t) { return !!grunt.config.getRaw(e(t)); });
-
-        return taskLoader.load(configured.map(e)).map(function () {
-            logger.writeln('Queuing targets ' + configured.map(util.tick).join(', ') + '.');
-            grunt.task.run(configured);
-        });
+        var configured = targets.filter(isConfigured);
+        return taskLoader.load(configured.map(extractTaskName))
+            .map(function () {
+                logger.writeln('Queuing targets ' + configured.map(util.tick).join(', ') + '.');
+                grunt.task.run(configured);
+            });
     }
 
 };

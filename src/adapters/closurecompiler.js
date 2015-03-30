@@ -13,6 +13,7 @@ module.exports = {
 
         var externs = util.dedupe(
             [
+                path.join(__dirname, '../externs/benshu.externs.js'),
                 path.join(__dirname, '../externs/requirejs.externs.js')
             ].concat(
                 availableExterns
@@ -27,16 +28,9 @@ module.exports = {
         logger.writeln('Using the following externs:');
         externs.forEach(function (e) { logger.writeln('  - ' + e); });
 
-        var apiFiles = moduleDescriptor.dependencies.internal.map(function (d) {
-            return glob.sync(path.join('bower_components', d, 'dist/**/*.externs.js'));
-        }).reduce(function (a, b) { return a.concat(b); }, [])
-
-        var files = {};
-        files[moduleDescriptor.distributionFile] = [moduleDescriptor.debugDistributionFile, 'api/**/*.js'].concat(apiFiles);
-
         return {
             minify: {
-                files: files,
+                files: util.singletonObject(moduleDescriptor.distributionFile, [moduleDescriptor.debugDistributionFile, 'build/apis.js']),
                 options: {
                     'compilation_level': 'ADVANCED_OPTIMIZATIONS',
                     'language_in': 'ECMASCRIPT5',
