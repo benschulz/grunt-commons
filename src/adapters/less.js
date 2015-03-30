@@ -9,6 +9,14 @@ module.exports = {
         else if (typeof config === 'string' || Array.isArray(config))
             files[moduleDescriptor.cssDebugDistributionFile] = config;
 
-        return {default: {files: files}}
+        return {
+            default: {
+                files: files,
+                options: {
+                    strictMath: true,
+                    strictUnits: true
+                }
+            }
+        }
     }
 };
