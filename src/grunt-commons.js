@@ -58,8 +58,8 @@ module.exports = function (grunt, mdl) {
 
     return {
         initialize: function (config) {
-            registerTaskList('build', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'concat-externs', 'prepare-apis', 'closurecompiler', 'drop-apis', 'karma:distribution', 'jsdoc');
-            registerTaskList('build-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'concat-externs', 'prepare-apis', 'closurecompiler', 'drop-apis', 'jsdoc');
+            registerTaskList('build', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'karma:sources', 'requirejs', 'karma:debugDistribution', 'concat-externs', 'prepare-apis', 'closurecompiler', 'drop-apis', 'karma:distribution', 'jsdoc', 'drop-sources-and-footer');
+            registerTaskList('build-skip-tests', 'less', 'cssmin', 'es6arrowfunction', 'jshint', 'requirejs', 'concat-externs', 'prepare-apis', 'closurecompiler', 'drop-apis', 'jsdoc', 'drop-sources-and-footer');
             registerTaskList('generate-documentation', 'es6arrowfunction', 'jsdoc');
             registerTaskList('test-interactively', 'karma:development');
             registerTaskList('test-sources', 'karma:sources');
@@ -183,6 +183,16 @@ module.exports = function (grunt, mdl) {
             var code = fs.readFileSync(moduleDescriptor.distributionFile, 'utf8');
             code = code.replace(/\/\*\s*START OF APIs\s*\*\/[\s\S]*$/, '');
             fs.writeFileSync(moduleDescriptor.distributionFile, code);
+        });
+
+        // TODO fork jaguarjs-jsdoc and have it not be generated in the first place
+        registerTask('drop-sources-and-footer', function () {
+            glob.sync('dist/**/*.html').forEach(function (documentationFile) {
+                var documentation = fs.readFileSync(documentationFile, 'utf8');
+                documentation = documentation.replace(/<div class="tag-source">[^<]*<\/div>/g, '');
+                documentation = documentation.replace(/<footer>[\s\S]*<\/footer>/g, '');
+                fs.writeFileSync(documentationFile, documentation);
+            });
         });
     }
 

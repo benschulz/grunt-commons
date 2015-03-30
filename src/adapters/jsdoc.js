@@ -20,7 +20,7 @@ module.exports = {
             '}'
         ].join('\n'));
 
-        var documentationDirectory = grunt.option('documentation-directory') || 'build/documentation';
+        var documentationDirectory = grunt.option('documentation-directory') || 'build/api';
 
         return {
             default: {
