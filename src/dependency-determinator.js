@@ -238,8 +238,13 @@ function tryLinkingNonLinkedComponents(dependencies) {
         return !fs.lstatSync(path.join('bower_components', d)).isSymbolicLink();
     });
 
+    if (!nonLinked.length)
+        return Promise.of(dependencies);
+
     return tryLinkingComponents(nonLinked)
-        .map(function () {return dependencies;});
+        // TODO order the non-linked so this isn't necessary
+        .chain(function () { return tryLinkingComponents(dependencies); })
+        .map(function () { return dependencies; });
 }
 
 function tryLinkingComponents(components) {
@@ -263,9 +268,9 @@ function tryLinkingComponent(component) {
 
         logger.writeln('Trying to link ' + util.tick(component) + '.');
         bower.commands.link(component)
-            .on('error', function () {
+            .on('error', function (e) {
                 promise.resolve(Promise.of(true).map(function () {
-                    logger.error('Component could not be linked.');
+                    logger.error('Component could not be linked (' + e + ').');
                     renameIfExists(backupPath, componentPath);
                     return [];
                 }));
