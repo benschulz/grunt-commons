@@ -27,6 +27,15 @@ ko.contextFor = function (node) {};
  * @param {Array<*>=} callbackArgs
  */
 ko.ignoreDependencies = function (callback, callbackTarget, callbackArgs) {};
+/**
+ * @param {*} value
+ * @returns {boolean}
+ */
+ko.isSubscribable = function (value) {};
+/**
+ * @param {*} value
+ * @returns {boolean}
+ */
 ko.isObservable = function (value) {};
 /** @constructor */
 ko.nativeTemplateEngine = function () {};
@@ -54,6 +63,13 @@ ko.removeNode = function (node) {};
  * @param {string=} renderMode
  */
 ko.renderTemplate = function (template, dataOrBindingContext, options, targetNodeOrNodeArray, renderMode) {};
+/**
+ * @template T
+ *
+ * @param {ko.Subscribable<T>} value
+ * @returns {T}
+ */
+// TODO the signature above is lying
 ko.unwrap = function (value) {};
 
 ko.utils = {};
@@ -80,7 +96,13 @@ function Subscribable() {}
 /** @typedef {Subscribable} */
 ko.Subscribable;
 
+/**
+ * @returns {undefined}
+ */
 Subscribable.prototype.dispose = function () {};
+/**
+ * @returns {T}
+ */
 Subscribable.prototype.peek = function () {};
 
 /**
@@ -89,6 +111,12 @@ Subscribable.prototype.peek = function () {};
  * @param {String=} event
  */
 Subscribable.prototype.subscribe = function (callback, callbackTarget, event) {};
+
+/**
+ * @param {Subscribable<T>} self
+ * @returns {T}
+ */
+Subscribable.prototype.call = function (self) {};
 
 /**
  * @interface
@@ -104,9 +132,16 @@ Observable.prototype.valueHasMutated = function () {};
 Observable.prototype.valueWillMutate = function () {};
 
 /**
+ * @param {Subscribable<T>} self
+ * @param {T=} newValue
+ * @returns {T}
+ */
+Observable.prototype.call = function (self, newValue) {};
+
+/**
  * @interface
  * @template T
- * @extends {Subscribable<Array<T>>}
+ * @extends {Observable<Array<T>>}
  */
 function ObservableArray() {}
 
