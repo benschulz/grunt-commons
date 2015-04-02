@@ -41,6 +41,7 @@ module.exports = {
                 files: {src: ['test/**/*.js']},
                 options: jsHintOptions({
                     esnext: true,
+                    expr: true,
                     globals: {
                         after: false,
                         afterEach: false,
