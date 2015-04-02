@@ -50,10 +50,6 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         '    }',
         '  },',
         '  packages: [{',
-        '    name: \'chai\',',
-        '    location: \'../node_modules/chai\',',
-        '    main: \'chai\'',
-        '  }, {',
         '    name: \'' + moduleDescriptor.name + '\',',
         '    location: \'' + location + '\',',
         '    main: \'' + karmaMain + '\'',
@@ -67,7 +63,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
     var additionalFiles = config.additionalFiles || [];
 
     return {
-        frameworks: ['mocha', 'requirejs', 'chai'],
+        frameworks: ['mocha', 'requirejs',  'chai', 'chai-as-promised'],
         files: additionalFiles.concat([
             'build/karma-requirejs-config/config-' + version + '.js',
             'test/main.test.js',
