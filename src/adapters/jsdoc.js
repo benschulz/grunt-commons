@@ -3,7 +3,6 @@
 var parentRequire = require('parent-require');
 
 var fs = require('fs'),
-    glob = require('glob'),
     grunt = parentRequire('grunt'),
     path = require('path');
 
@@ -11,8 +10,8 @@ module.exports = {
     configure: function (moduleDescriptor) {
         var configureFile = 'build/jsdoc.conf.json';
 
-        var markdownPlugin = path.relative('build', glob.sync('node_modules/**/jsdoc/plugins/markdown.js')[0]);
-        var summarizePlugin = path.relative('build', glob.sync('node_modules/**/jsdoc/plugins/summarize.js')[0]);
+        var markdownPlugin = path.relative('build', 'node_modules/grunt-jsdoc/node_modules/jsdoc/plugins/markdown.js');
+        var summarizePlugin = path.relative('build', 'node_modules/grunt-jsdoc/node_modules/jsdoc/plugins/summarize.js');
 
         fs.writeFileSync(configureFile, [
             '{',
