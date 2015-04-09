@@ -3,8 +3,26 @@
  */
 var ko = {};
 
+/**
+ * @param {*} viewModelOrBindingContext
+ * @param {Node} rootNode
+ */
 ko.applyBindings = function (viewModelOrBindingContext, rootNode) {};
+
+/**
+ * @param {*} viewModelOrBindingContext
+ * @param {Node} rootNode
+ */
+ko.applyBindingsToDescendants = function (viewModelOrBindingContext, rootNode) {}
+
+/**
+ * @namespace
+ */
 ko.bindingHandlers = {};
+
+/**
+ * @param {Node} node
+ */
 ko.cleanNode = function (node) {};
 
 /**
@@ -21,32 +39,45 @@ ko.computed = function (evaluatorFunctionOrOptions, evaluatorFunctionTarget, opt
  * @returns {?}
  */
 ko.contextFor = function (node) {};
+
 /**
  * @param {function()} callback
  * @param {Object=} callbackTarget
  * @param {Array<*>=} callbackArgs
  */
 ko.ignoreDependencies = function (callback, callbackTarget, callbackArgs) {};
-/**
- * @param {*} value
- * @returns {boolean}
- */
-ko.isSubscribable = function (value) {};
+
 /**
  * @param {*} value
  * @returns {boolean}
  */
 ko.isObservable = function (value) {};
+
+/**
+ * @param {*} value
+ * @returns {boolean}
+ */
+ko.isSubscribable = function (value) {};
+
+/**
+ * @param {*} value
+ * @returns {boolean}
+ */
+ko.isWritableObservable = function (value) {};
+
 /** @constructor */
 ko.nativeTemplateEngine = function () {};
+
 /**
  * @param {*=} initialValue
  */
 ko.observable = function (initialValue) {};
+
 /**
  * @param {Array<?>=} initialValue
  */
 ko.observableArray = function (initialValue) {};
+
 /**
  * @template T
  * @param {function():T|{read:function():T}} evaluatorFunctionOrOptions
@@ -54,7 +85,12 @@ ko.observableArray = function (initialValue) {};
  * @returns Subscribable<T>
  */
 ko.pureComputed = function (evaluatorFunctionOrOptions, evaluatorFunctionTarget) {};
+
+/**
+ * @param {Node} node
+ */
 ko.removeNode = function (node) {};
+
 /**
  * @param {string} template
  * @param {Object} dataOrBindingContext
@@ -63,6 +99,7 @@ ko.removeNode = function (node) {};
  * @param {string=} renderMode
  */
 ko.renderTemplate = function (template, dataOrBindingContext, options, targetNodeOrNodeArray, renderMode) {};
+
 /**
  * @template T
  *
@@ -72,8 +109,15 @@ ko.renderTemplate = function (template, dataOrBindingContext, options, targetNod
 // TODO the signature above is lying
 ko.unwrap = function (value) {};
 
+/** @namespace */
 ko.utils = {};
+/** @namespace */
 ko.utils.domNodeDisposal = {};
+
+/**
+ * @param {Node} node
+ * @param {function()} callback
+ */
 ko.utils.domNodeDisposal.addDisposeCallback = function (node, callback) {};
 
 /**
@@ -84,7 +128,18 @@ function BindingContext() {}
 /** @typedef {BindingContext} */
 ko.BindingContext;
 
+/**
+ * @param {*} dataItemOrAccessor
+ * @param {string=} dataItemAlias
+ * @param {function(BindingContext)=} extendCallback
+ * @returns {BindingContext}
+ */
 BindingContext.prototype.createChildContext = function (dataItemOrAccessor, dataItemAlias, extendCallback) {};
+
+/**
+ * @param {*} properties
+ * @returns {BindingContext}
+ */
 BindingContext.prototype.extend = function (properties) {};
 
 /**
@@ -128,7 +183,10 @@ function Observable() {}
 /** @typedef {Observable} */
 ko.Observable;
 
+/** */
 Observable.prototype.valueHasMutated = function () {};
+
+/** */
 Observable.prototype.valueWillMutate = function () {};
 
 /**
@@ -148,4 +206,7 @@ function ObservableArray() {}
 /** @typedef {ObservableArray} */
 ko.ObservableArray;
 
+/**
+ * @param {Array<T>} arrayOfValues
+ */
 ObservableArray.prototype.removeAll = function (arrayOfValues) {};
