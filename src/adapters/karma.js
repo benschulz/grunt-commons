@@ -63,7 +63,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
     var additionalFiles = config.additionalFiles || [];
 
     return {
-        frameworks: ['mocha', 'requirejs',  'chai', 'chai-as-promised'],
+        frameworks: ['mocha', 'requirejs', 'chai', 'chai-as-promised'],
         files: additionalFiles.concat([
             'build/karma-requirejs-config/config-' + version + '.js',
             'test/main.test.js',
@@ -83,7 +83,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         },
         reporters: interactive ? ['dots'] : ['html', 'coverage', 'progress'],
         // TODO add phantomjs when it's at v2, add slimerjs at convenience..
-        browsers: interactive || version === 'sources' ? ['Firefox'] : ['Chrome', 'Firefox'],
+        browsers: interactive || version === 'sources' || process.env.TRAVIS ? ['Firefox'] : ['Chrome', 'Firefox'],
         singleRun: !interactive,
         babelPreprocessor: {
             options: {sourceMap: 'inline'}
