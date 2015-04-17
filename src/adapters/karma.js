@@ -62,6 +62,8 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
     var reportsDirectory = grunt.option('reports-directory') || 'build/reports';
     var additionalFiles = config.additionalFiles || [];
 
+    var travis = !!process.env.TRAVIS;
+
     return {
         frameworks: ['mocha', 'requirejs', 'chai', 'chai-as-promised'],
         files: additionalFiles.concat([
@@ -83,7 +85,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         },
         reporters: interactive ? ['dots'] : ['html', 'coverage', 'progress'],
         // TODO add phantomjs when it's at v2, add slimerjs at convenience..
-        browsers: interactive || version === 'sources' || process.env.TRAVIS ? ['Firefox'] : ['Chrome', 'Firefox'],
+        browsers: interactive || version === 'sources' || travis ? ['Firefox'] : ['Chrome', 'Firefox'],
         singleRun: !interactive,
         babelPreprocessor: {
             options: {sourceMap: 'inline'}
@@ -94,7 +96,9 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         },
         coverageReporter: {
             dir: path.join(reportsDirectory, 'coverage', version),
-            type: 'html'
+            reporters: travis
+                ? [{type: 'html'}, {type: 'lcov'}]
+                : [{type: 'html'}]
         }
     };
 }
