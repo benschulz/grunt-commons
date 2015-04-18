@@ -35,7 +35,7 @@ function pluginFor(taskId) {
         es6arrowfunction: ['es6-arrow-function'],
         jsdoc: ['grunt-jsdoc', 'jaguarjs-jsdoc'],
         jshint: ['grunt-contrib-jshint'],
-        karma: ['chai', 'grunt-karma', 'karma', 'karma-babel-preprocessor', 'karma-chai-plugins', 'karma-chrome-launcher', 'karma-coverage', 'karma-firefox-launcher', 'karma-html-reporter', 'karma-mocha', 'karma-phantomjs-launcher', 'karma-requirejs'],
+        karma: ['chai', 'coveralls', 'grunt-karma', 'karma', 'karma-babel-preprocessor', 'karma-chai-plugins', 'karma-chrome-launcher', 'karma-coverage', 'karma-firefox-launcher', 'karma-html-reporter', 'karma-mocha', 'karma-phantomjs-launcher', 'karma-requirejs'],
         less: ['grunt-contrib-less'],
         requirejs: ['grunt-contrib-requirejs', 'requirejs-plugins'],
         watch: ['grunt-contrib-watch']
