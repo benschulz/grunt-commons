@@ -26,6 +26,13 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
 
     var requirejs = config.requirejs || {};
     var paths = []
+        .concat([{
+            // rjs plugins
+            text: '../node_modules/requirejs-plugins/lib/text',
+            json: '../node_modules/requirejs-plugins/src/json',
+            // dom event simulation
+            simulant: '../node_modules/simulant/dist/simulant'
+        }])
         .concat([]
             .concat(dependencies.external.map(function (d) {
                 return util.singletonObject(d, '../bower_components/' + d + '/' + dependencies.metadata[d].main);
@@ -44,11 +51,7 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
         '',
         'requirejs.config({',
         '  baseUrl: \'/base/test\',',
-        '  shim: {',
-        '    mocha: {',
-        '      exports: \'mocha\'',
-        '    }',
-        '  },',
+        '  map: { \'*\': { \'req\': \'require\' } },',
         '  packages: [{',
         '    name: \'' + moduleDescriptor.name + '\',',
         '    location: \'' + location + '\',',
@@ -67,12 +70,14 @@ function karmaOptions(version, location, karmaMain, interactive, moduleDescripto
     return {
         frameworks: ['mocha', 'requirejs', 'chai', 'chai-as-promised'],
         files: additionalFiles.concat([
+            {pattern: 'node_modules/requirejs-plugins/**/*.js', included: false},
+            {pattern: 'node_modules/simulant/dist/simulant.js', included: false},
             'build/karma-requirejs-config/config-' + version + '.js',
             'test/main.test.js',
-            {pattern: 'src/**/*.js', included: false},
-            {pattern: 'build/es5src/**/*.js', included: false},
+            {pattern: 'src/**/*', included: false},
             {pattern: 'test/**/*.js', included: false},
-            {pattern: 'dist/*.js', included: false}
+            {pattern: 'dist/*.js', included: false},
+            'dist/*.debug.css'
         ]).concat(dependencies.external.map(function (d) {
             return {pattern: 'bower_components/' + d + '/' + dependencies.metadata[d].main, included: false}
         })).concat(dependencies.internal.map(function (d) {
